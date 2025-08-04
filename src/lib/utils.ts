@@ -11,11 +11,22 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Format thời gian từ giây sang MM:SS
+ * @param seconds Số giây
+ * @returns Chuỗi thời gian đã được format
+ */
+export function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+/**
  * Format thời gian từ chuỗi ISO
  * @param dateString Chuỗi thời gian dạng ISO
  * @returns Chuỗi thời gian đã được format
  */
-export function formatTime(dateString: string): string {
+export function formatTimeFromDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString('vi-VN', { 
     hour: '2-digit', 

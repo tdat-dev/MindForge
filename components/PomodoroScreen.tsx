@@ -31,7 +31,7 @@ interface TimerSettings {
 export function PomodoroScreen({ user, habitId }: PomodoroScreenProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<TimerMode>('work');
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // Default: 25 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState<number>(25 * 60); // Default: 25 minutes in seconds
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<any>(null);
@@ -99,13 +99,14 @@ export function PomodoroScreen({ user, habitId }: PomodoroScreenProps) {
   }, [user?.uid, habitId]);
   
   // Timer effect
-  // Khởi tạo giá trị timeLeft khi chuyển mode
+  // Khởi tạo giá trị timeLeft khi component mount hoặc khi chuyển mode
   useEffect(() => {
+    console.log('Setting initial time for mode:', mode, 'to', settings[mode], 'minutes');
     // Đặt thời gian ban đầu dựa trên mode hiện tại
     setTimeLeft(settings[mode] * 60);
   }, [mode, settings]);
   
-  // Timer effect - chạy khi isRunning thay đổi
+  // Timer effect - chạy khi isRunning hoặc mode thay đổi
   useEffect(() => {
     // Đảm bảo xóa timer cũ trước khi tạo timer mới
     if (timerRef.current) {
@@ -119,9 +120,12 @@ export function PomodoroScreen({ user, habitId }: PomodoroScreenProps) {
       const startTime = Date.now();
       const endTime = startTime + (timeLeft * 1000);
       
+      // Tạo interval mới
       timerRef.current = setInterval(() => {
         const currentTime = Date.now();
         const remaining = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+        
+        console.log('Timer tick:', remaining, 'seconds left');
         
         if (remaining <= 0) {
           if (timerRef.current) {
@@ -133,7 +137,7 @@ export function PomodoroScreen({ user, habitId }: PomodoroScreenProps) {
         } else {
           setTimeLeft(remaining);
         }
-      }, 200); // Cập nhật mỗi 200ms để đảm bảo độ chính xác cao hơn
+      }, 100); // Cập nhật mỗi 100ms để đảm bảo độ chính xác cao hơn
     }
     
     return () => {
@@ -142,7 +146,7 @@ export function PomodoroScreen({ user, habitId }: PomodoroScreenProps) {
         timerRef.current = null;
       }
     };
-  }, [isRunning, timeLeft]);
+  }, [isRunning, mode]);
   
   const loadSettings = async () => {
     try {
